@@ -1,45 +1,25 @@
-var teamColors = {
-  Colorado: "#330072",
-  "LA Dodgers": "#002F6C",
-  Arizona: "#A71930",
-  "San Diego": "#041E42",
-  "San Francisco": "#FA4616",
-  Washington: "#BA122B",
-  "NY Mets": "#002D72",
-  Miami: "#ED6F2E",
-  Philadelphia: "#BA0C2F",
-  Atlanta: "#132650",
-  "Chi Cubs": "#002F6C",
-  "St. Louis": "#BA0C2F",
-  Pittsburgh: "#FFC72C",
-  Milwaukee: "#13294B",
-  Cincinnati: "#D50032",
-  Boston: "#C8102E",
-  Toronto: "#134A8E",
-  "NY Yankees": "#003087",
-  "Tampa Bay": "#092C5C",
-  Cleveland: "#D50032",
-  Detroit: "#FA4616",
-  "Kansas City": "#1A4784",
-  "Chi White Sox": "#27251F",
-  Minnesota: "#BA0C2F",
-  Texas: "#002D72",
-  Seattle: "#0C2340",
-  Houston: "#002D62",
-  "LA Angels": "#BA0021",
-  Oakland: "#034638",
-  Baltimore: "#FC4C02"
-};
-var divisions = [
-  "national-league-east",
-  "national-league-central",
-  "national-league-west",
-  "american-league-east",
-  "american-league-central",
-  "american-league-west"
-];
+import { range, orderBy } from "lodash-es";
+import { scaleLinear } from "d3-scale";
+import { line } from "d3-shape";
+import { select, selectAll } from "d3-selection";
+import { transition } from "d3-transition";
+import { csv } from "d3-fetch";
+import { nest } from "d3-collection";
+import { easeLinear } from "d3-ease";
+import { teamColors } from "./constants";
 
-var years = _.range(1994, 2019).reverse();
+const d3 = {
+  scaleLinear,
+  line,
+  select,
+  selectAll,
+  transition,
+  csv,
+  nest,
+  easeLinear
+};
+
+var years = range(1994, 2019).reverse();
 var defaultYear = 2017;
 
 // Set the dimensions of the canvas / graph
@@ -75,6 +55,8 @@ var flatLine = d3
   .y(d => yScale(d));
 
 var flatLineValues = Array(163).fill(0);
+
+const container = d3.select(".charts");
 
 function addTeamLines(division, divisionChart) {
   var teamRecordLine = d3
@@ -179,7 +161,7 @@ function addTeamLabels(finalRecordsSorted, divisionChart) {
 }
 
 function updateChart(year) {
-  d3.csv(`data/${year}-cumulative-season-games.csv`, function(error, data) {
+  d3.csv(`${year}-cumulative-season-games.csv`).then(function(data) {
     data.forEach(function(d) {
       d.games_played = +d.games_played;
       d.wins = +d.wins;
@@ -195,8 +177,6 @@ function updateChart(year) {
       .key(d => d.team_short_name)
       .entries(data);
 
-    // debugger;
-
     divisions.forEach(function(division) {
       var divisionChart = d3.select(
         `.${division.key.toLowerCase().replace(/\s+/g, "-")}`
@@ -207,10 +187,10 @@ function updateChart(year) {
       };
       var finalRecordsSorted = {
         key: finalRecords.key,
-        values: _.orderBy(finalRecords.values, d => +d.pct, ["desc"])
+        values: orderBy(finalRecords.values, d => +d.pct, ["desc"])
       };
 
-      var title = divisionChart
+      divisionChart
         .selectAll("text")
         .transition()
         .duration(speed)
@@ -226,7 +206,7 @@ function updateChart(year) {
 }
 
 function initCharts(year) {
-  var divisionCharts = d3.select(".charts").selectAll("svg");
+  var divisionCharts = container.selectAll("svg");
 
   var buttons = d3
     .select(".year-selector")
