@@ -161,7 +161,16 @@ function addTeamLabels(finalRecordsSorted, divisionChart) {
 }
 
 function updateChart(year) {
+  let dataLoaded = false;
+  setTimeout(function() {
+    if (!dataLoaded) {
+      container.classed("loading", true);
+    }
+  }, 1000);
   d3.csv(`${year}-cumulative-season-games.csv`).then(function(data) {
+    // container.classList.remove("loading");
+    dataLoaded = true;
+    container.classed("loading", false);
     data.forEach(function(d) {
       d.games_played = +d.games_played;
       d.wins = +d.wins;
