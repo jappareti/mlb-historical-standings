@@ -20,7 +20,7 @@ const d3 = {
 };
 
 var years = range(1994, 2019).reverse();
-var defaultYear = 2017;
+var defaultYear = 2018;
 
 // Set the dimensions of the canvas / graph
 var margin = { top: 0, right: 30, bottom: 0, left: 50 },
@@ -161,6 +161,8 @@ function addTeamLabels(finalRecordsSorted, divisionChart) {
 }
 
 function updateChart(year) {
+  // Only show the loading indicator if it takes longer than 1 second to load
+  // the CSV file
   let dataLoaded = false;
   setTimeout(function() {
     if (!dataLoaded) {
@@ -168,7 +170,6 @@ function updateChart(year) {
     }
   }, 1000);
   d3.csv(`${year}-cumulative-season-games.csv`).then(function(data) {
-    // container.classList.remove("loading");
     dataLoaded = true;
     container.classed("loading", false);
     data.forEach(function(d) {
