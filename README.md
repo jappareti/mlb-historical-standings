@@ -38,6 +38,11 @@ Start up the development server with hot reloading:
 yarn run dev
 ```
 
+## Data Source
+
+I pulled the data from the MLB API. Here's the [jupyter notebook](https://github.com/jappareti/mlb-season-data-fetcher/blob/master/mlb-fetcher.ipynb) I used to pull and clean the data.
+
+
 ## Deploying
 
 To generate the optimized build, simply run:
